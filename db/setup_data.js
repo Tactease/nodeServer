@@ -94,3 +94,41 @@ if (validClass && validPAKAL && validRequestType && validDayOffType) {
 } else {
   print("Validation failed. Soldier not added.");
 }
+
+// Function to add a new soldier
+function addSoldier(personal_number, fullName) {
+  db.soldiers.insertOne({
+      personal_number: personal_number,
+      fullName: fullName,
+  });
+  print("Soldier added successfully.");
+}
+
+// Function to assign PAKAL to a soldier
+function assignPAKAL(personal_number, pakal) {
+  var soldier = db.soldiers.findOne({ personal_number: personal_number });
+  var validPAKAL = db.pakals.findOne({ pakal: pakal });
+  if (soldier && validPAKAL) {
+      db.soldiers.updateOne({ personal_number: personal_number }, { $set: { PAKAL: pakal } });
+      print("PAKAL assigned successfully.");
+  } else {
+      print("Invalid soldier or PAKAL.");
+  }
+}
+
+// Function to assign class to a soldier
+function assignClass(personal_number, className) {
+  var soldier = db.soldiers.findOne({ personal_number: personal_number });
+  var validClass = db.classes.findOne({ className: className });
+  if (soldier && validClass) {
+      db.soldiers.updateOne({ personal_number: personal_number }, { $set: { class: className } });
+      print("Class assigned successfully.");
+  } else {
+      print("Invalid soldier or class.");
+  }
+}
+
+// Usage examples:
+// addSoldier(2, 'Jane Smith');
+// assignPAKAL(2, 'Driver');
+// assignClass(2, 'ClassA');
