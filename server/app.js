@@ -6,7 +6,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(logger('dev'))
 
-app.listen(port, () => console.log(`Express server is running on port ${port}`))
+//define "server" variable
+const server = app.listen(port, () => {
+    console.log(`Express server is running on port ${port}`);
+});
 
 // Define route to add a soldier
 app.post('/add-soldier', (req, res) => {
