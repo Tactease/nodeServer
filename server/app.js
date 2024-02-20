@@ -3,12 +3,15 @@ require('express-async-errors');
 const express = require('express');
 const logger = require('morgan');
 const { errorHandler } = require('./middlewares/errorHandler');
+//Basic python algorithm talk
+const runAlgorithm = require('./run-algorithm');
 
 const app = express();
 const port = process.env.PORT || 3000;
 const { missionsRouter } = require('./routers/missionRouter');
 const { soldierRouter } = require('./routers/soldierRouter');
 const { requestsRouter } = require('./routers/requestRouter');
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +29,6 @@ app.listen(port, () => console.log(`Express server is running on port ${port}`))
 
 module.exports = app; // for testing
 
-//Basic python algorithm talk
-const runAlgorithm = require('./use-algorithm');
+
 // Call this function whenever you need to run the algorithm
 runAlgorithm();

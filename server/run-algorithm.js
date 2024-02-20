@@ -1,7 +1,7 @@
 const { spawn } = require('child_process');
 
 function runAlgorithm() {
-    const pythonProcess = spawn('python', ['../algorithm/cpAlgorithm.py']);
+    const pythonProcess = spawn('python', ['./algorithm/cpAlgorithm.py']);
 
     pythonProcess.stdout.on('data', (data) => {
         const result = data.toString().trim(); // Convert buffer to string and remove trailing newline
