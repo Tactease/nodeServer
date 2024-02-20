@@ -25,3 +25,8 @@ app.use((req, res) => {
 app.listen(port, () => console.log(`Express server is running on port ${port}`));
 
 module.exports = app; // for testing
+
+//Basic python algorithm talk
+const runAlgorithm = require('./use-algorithm');
+// Call this function whenever you need to run the algorithm
+runAlgorithm();
