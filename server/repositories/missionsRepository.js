@@ -3,6 +3,8 @@ const MongoStorage = require('../data/mongoStorage');
 const mongoStorage = new MongoStorage('mission');
 const findMissions = () => mongoStorage.find({});
 
+const findMissionsByClassId = (classId) => mongoStorage.retrieveByClass(classId);
+
 const retrieveMission = (id) => mongoStorage.retrieve({ _id: id });
 
 const createMission = (mission) => mongoStorage.create(mission);
@@ -14,5 +16,5 @@ const updateMission = (id, mission) => mongoStorage.update({ _id: id }, mission)
 const deleteMission = (id) => mongoStorage.delete({ _id: id });
 
 module.exports = {
-  findMissions, retrieveMission, createMission, createMissions, updateMission, deleteMission,
+  findMissions,findMissionsByClassId, retrieveMission, createMission, createMissions, updateMission, deleteMission,
 };

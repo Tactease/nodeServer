@@ -45,7 +45,22 @@ class ServerError extends Error {
     this.status = 500;
   }
 }
-module.exports = { ServerError };
+
+class NotFoundSchedule extends Error {
+  constructor(schedule) {
+    super(`Schedule not found`);
+    this.name = 'Schedule not found';
+    this.status = 404;
+  }
+}
+
+class FlaskConnection extends Error {
+  constructor(message) {
+    super(`Error connecting to Flask API at ${message}`);
+    this.name = 'FlaskConnection';
+    this.status = 500;
+  }
+}
 
 module.exports = {
   EntityNotFoundError,
@@ -53,4 +68,6 @@ module.exports = {
   BadRequestError,
   DuplicateError,
   ServerError,
+  NotFoundSchedule,
+  FlaskConnection
 };

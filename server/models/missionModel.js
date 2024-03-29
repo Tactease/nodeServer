@@ -9,4 +9,8 @@ const MissionSchema = new Schema({
   soldiersOnMission: { type: Array },
 }, { collection: 'missions' });
 
+MissionSchema
+  .path('endDate')
+  .validate(((value) => this.startDate && value && value < this.startDate));
+
 module.exports = model('mission', MissionSchema);
