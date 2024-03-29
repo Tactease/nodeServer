@@ -4,9 +4,11 @@ const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
 const session = require('express-session');
-const errorHandler = require('./middlewares/errorHandler');
+const { errorHandler } = require('./middlewares/errorHandler');
+const { connect } = require('./data/mongoStorage');
 
 const store = new session.MemoryStore();
+connect();
 
 const app = express();
 app.use(session({

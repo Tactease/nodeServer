@@ -1,4 +1,4 @@
-const MongoStorage = require('../data/mongoStorage');
+const { MongoStorage } = require('../data/mongoStorage');
 const { DuplicateError } = require('../errors/errors');
 
 const storage = new MongoStorage('soldier');

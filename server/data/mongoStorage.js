@@ -5,21 +5,20 @@ const Path = require('path');
 
 dotenv.config();
 
-module.exports = class mongoStorage extends EventEmitter {
+const connect = () => {
+  const connectionUrl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}`;
+  mongoose
+    .connect(connectionUrl)
+    .then(() => console.log('connected to Tactease DB'))
+    .catch((err) => console.log(`connection error: ${err}`));
+};
+
+class MongoStorage extends EventEmitter {
   constructor(entity) {
     super();
 
     this.entityName = entity.charAt(0).toLowerCase() + entity.slice(1);
     this.Model = require(Path.join(__dirname, `../models/${this.entityName}Model.js`));
-    this.connect();
-  }
-
-  connect() {
-    const connectionUrl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}`;
-    mongoose
-      .connect(connectionUrl)
-      .then(() => console.log(`connected to ${this.entityName} collection`))
-      .catch((err) => console.log(`connection error: ${err}`));
   }
 
   find() {
@@ -81,4 +80,6 @@ module.exports = class mongoStorage extends EventEmitter {
   retrieveByPN(personalNumber) {
     return this.Model.findOne(personalNumber);
   }
-};
+}
+
+module.exports = { MongoStorage, connect };
