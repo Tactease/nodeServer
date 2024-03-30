@@ -24,7 +24,7 @@ class PropertyNotFoundError extends NotFound {
 
 class BadRequestError extends Error {
   constructor(element) {
-    super(`please provide: ${element} in the correct format`);
+    super(`please provide: ${element} `);
     this.name = 'BadRequestError';
     this.status = 400;
   }

@@ -48,7 +48,7 @@ exports.missionsController = {
       next(error);
     }
   },
-  async addMission(result, next) {
+  async addMission(result) {
     try {
       if (Object.keys(result).length === 0) throw new BadRequestError('create');
       if (Array.isArray(result)) {
@@ -93,15 +93,15 @@ exports.missionsController = {
 
   async validateMissions(missions) {
     if (Array.isArray(missions)) {
+      let isValid = true;
       missions.forEach((mission) => {
         if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount) {
-          return false;
+          isValid = false;
         }
       });
-      return true;
+      return isValid;
     } else {
-      return (!missions.classId || !missions.missionType || !missions.startDate || !missions.endDate || !missions.soldierCount);
-
+      return !(!missions.classId || !missions.missionType || !missions.startDate || !missions.endDate || !missions.soldierCount);
     }
   }
 };

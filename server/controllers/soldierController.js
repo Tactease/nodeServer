@@ -31,7 +31,7 @@ exports.soldiersController = {
     }
   },
 
-  async getSoldiersByClassId(classId) {
+  async getSoldiersByClassId(classId, next) {
     const soldier = await retrieveSoldierByClass(classId);
     if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`class with id <${classId}>`);
     return soldier;

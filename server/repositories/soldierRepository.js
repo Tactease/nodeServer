@@ -1,34 +1,34 @@
 const { MongoStorage } = require('../data/mongoStorage');
 const { DuplicateError } = require('../errors/errors');
 
-const storage = new MongoStorage('soldier');
+const mongoStorage = new MongoStorage('soldier');
 
-const findSoldiers = () => storage.find({});
+const findSoldiers = () => mongoStorage.find({});
 
-const retrieveSoldier = (id) => storage.retrieve({ _id: id });
+const retrieveSoldier = (id) => mongoStorage.retrieve({ _id: id });
 
-const retrieveSoldierByClass = (id) => storage.retrieveByClass({ 'depClass.classId': id });
+const retrieveSoldierByClass = (id) => mongoStorage.retrieveByClass({ 'depClass.classId': id });
 
 const createSoldier = async (soldier) => {
   try {
-    return await storage.create(soldier);
+    return await mongoStorage.create(soldier);
   } catch (error) {
     throw new DuplicateError('Soldier');
   }
 };
 
-const updateSoldier = (id, soldier) => storage.update({ _id: id }, soldier);
+const updateSoldier = (id, soldier) => mongoStorage.update({ _id: id }, soldier);
 
-const deleteSoldier = (id) => storage.delete({ _id: id });
+const deleteSoldier = (id) => mongoStorage.delete({ _id: id });
 
-const createRequest = (id, request) => storage.createRequest(id, request);
+const createRequest = (id, request) => mongoStorage.createRequest(id, request);
 
-const deleteRequest = (id, request) => storage.deleteRequest(id, request);
+const deleteRequest = (id, request) => mongoStorage.deleteRequest(id, request);
 
 // eslint-disable-next-line max-len
-const updateRequest = (solderId, requestId, data) => storage.updateRequest(solderId, requestId, data);
+const updateRequest = (solderId, requestId, data) => mongoStorage.updateRequest(solderId, requestId, data);
 
-const retrieveSoldierByPN = (personalNumber) => storage.retrieveByPN({ personalNumber });
+const retrieveSoldierByPN = (personalNumber) => mongoStorage.retrieveByPN({ personalNumber });
 
 module.exports = {
   // eslint-disable-next-line max-len
