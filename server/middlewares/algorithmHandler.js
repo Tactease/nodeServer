@@ -33,7 +33,6 @@ exports.algorithmHandler = {
       if (Object.keys(req.body).length === 0) throw new BadRequestError('add missions');
 
       const validation = await missionsController.validateMissions(req.body);
-      console.log(validation);
       if (!validation) throw new BadRequestError('missing arguments in missions');
 
       let processedMissions = processMissions(req.body);
@@ -54,7 +53,8 @@ exports.algorithmHandler = {
       if (missions.length > 0) {
         url = 'add_mission';
         data = {
-          'missions': [...missions, ...processedMissions],
+          'schedule': missions,
+          'new_mission': processedMissions,
           'soldiers': soldiers
         };
       }
@@ -62,15 +62,9 @@ exports.algorithmHandler = {
       const result = await flaskController.flaskConnection(url, data);
 
       const resData = JSON.parse(result.data);
-      if (!resData || resData === 0) throw new NotFoundSchedule('schedule');
+      if (!resData || resData === 0) throw new BadRequestError('schedule');
+      if (resData.hasOwnProperty('error')) throw new NotFoundSchedule(`${resData.error}`);
       console.log(resData);
-      // const precessMissionsFromFlask = resData.map(({
-      //   _id,
-      //   ...missionWithoutId
-      // }) => ({
-      //   classId,
-      //   ...missionWithoutId
-      // }));
 
       const missionResult = await missionsController.addMission(resData);
       console.log(missionResult);

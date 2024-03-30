@@ -13,11 +13,12 @@ exports.flaskController = {
 
     if (requestString === 'add_mission') {
       payload = {
-        schedule: JSON.stringify({}),
-        new_mission: JSON.stringify(data.missions),
-        soldiers: JSON.stringify(data.missions)
+        schedule: JSON.stringify(data.schedule),
+        new_mission: JSON.stringify(data.new_mission),
+        soldiers: JSON.stringify(data.soldiers)
       };
     }
+
     return await axios.post(flaskApiUrl, payload);
   },
 }

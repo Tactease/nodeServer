@@ -48,7 +48,7 @@ class ServerError extends Error {
 
 class NotFoundSchedule extends Error {
   constructor(schedule) {
-    super(`Schedule not found`);
+    super(`${schedule}`);
     this.name = 'Schedule not found';
     this.status = 404;
   }
