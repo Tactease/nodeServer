@@ -66,7 +66,7 @@ exports.missionsController = {
       const isId = mongoose.isValidObjectId(missionId);
       if (!isId) throw new BadRequestError('id');
       if (Object.keys(req.body).length === 0) throw new BadRequestError('update');
-      const mission = await updateMission();
+      const mission = await updateMission(missionId, req.body);
       if (!mission || mission.length === 0) throw new EntityNotFoundError(`Request with id <${missionId}>`);
       res.status(200)
         .json(mission);
