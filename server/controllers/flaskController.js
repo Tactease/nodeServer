@@ -5,7 +5,7 @@ const axios = require('axios');
 
 exports.flaskController = {
   async flaskConnection(requestString, data) {
-    const flaskApiUrl = `http://localhost:5000/${requestString}`;
+    const flaskApiUrl = `https://tacteasepythonserver.onrender.com/${requestString}`;
     let payload = {
       missions: JSON.stringify(data.missions),
       soldiers: JSON.stringify(data.soldiers)
