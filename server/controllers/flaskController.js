@@ -3,9 +3,13 @@ const {
 } = require('../errors/errors');
 const axios = require('axios');
 
+localURL = 'http://localhost:5000/';
+rendeURL = 'https://tacteasepythonserver.onrender.com/';
+
+
 exports.flaskController = {
   async flaskConnection(requestString, data) {
-    const flaskApiUrl = `https://tacteasepythonserver.onrender.com/${requestString}`;
+    const flaskApiUrl = `http://localhost:5000/${requestString}`;
     let payload = {
       missions: JSON.stringify(data.missions),
       soldiers: JSON.stringify(data.soldiers)

@@ -62,6 +62,14 @@ class FlaskConnection extends Error {
   }
 }
 
+class FlaskResponse extends Error {
+  constructor(message) {
+    super(`${message}`);
+    this.name = 'FlaskResponse';
+    this.status = 500;
+  }
+}
+
 module.exports = {
   EntityNotFoundError,
   PropertyNotFoundError,
@@ -69,5 +77,6 @@ module.exports = {
   DuplicateError,
   ServerError,
   NotFoundSchedule,
-  FlaskConnection
+  FlaskConnection,
+  FlaskResponse
 };

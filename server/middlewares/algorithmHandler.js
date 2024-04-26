@@ -2,14 +2,24 @@ const axios = require('axios');
 const { missionsController } = require('../controllers/missionsController');
 const { soldiersController } = require('../controllers/soldierController');
 const {
-  flaskConnection,
   flaskController
 } = require('../controllers/flaskController');
 const {
+  FlaskResponse,
   EntityNotFoundError,
   BadRequestError,
   NotFoundSchedule
 } = require('../errors/errors');
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response) {
+      throw new FlaskResponse(error.response.data.message);
+    }
+  }
+);
+
 
 const processMissions = (missions) => {
   let processedMissions = [];
@@ -60,7 +70,6 @@ exports.algorithmHandler = {
       }
 
       const result = await flaskController.flaskConnection(url, data);
-
       const resData = JSON.parse(result.data);
       if (!resData || resData === 0) throw new BadRequestError('schedule');
       if (resData.hasOwnProperty('error')) throw new NotFoundSchedule(`${resData.error}`);
