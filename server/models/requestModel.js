@@ -8,6 +8,7 @@ const RequestModel = new Schema({
   endDate: { type: String, required: true },
   note: { type: String },
   fileName: { type: String },
+  status: {type: String, default: "Pending"},
 });
 
 module.exports = model('request', RequestModel);
