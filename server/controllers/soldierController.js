@@ -134,6 +134,7 @@ exports.soldiersController = {
       } else if (await bcrypt.compare(password, soldier.password)) {
         req.session.authenticated = true;
         req.session.user = {
+          _id,
           personalNumber,
           fullName,
           depClass,
