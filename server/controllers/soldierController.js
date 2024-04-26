@@ -124,6 +124,7 @@ exports.soldiersController = {
       const soldier = await retrieveSoldierByPN(personalNumber);
       if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`soldier with personal number <${personalNumber}>`);
       const {
+        _id,
         fullName,
         depClass,
         pakal,
