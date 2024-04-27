@@ -15,7 +15,11 @@ axios.interceptors.response.use(
   response => response,
   error => {
     if (error.response) {
-      throw new FlaskResponse(error.response.data.message);
+      const statusCode = error.response.status;
+      if (statusCode === 404) {
+        throw new NotFoundSchedule(error.response.data.message, statusCode);
+      }
+      throw new FlaskResponse(error.response.data.message, statusCode);
     }
   }
 );
@@ -73,11 +77,8 @@ exports.algorithmHandler = {
       const resData = JSON.parse(result.data);
       if (!resData || resData === 0) throw new BadRequestError('schedule');
       if (resData.hasOwnProperty('error')) throw new NotFoundSchedule(`${resData.error}`);
-      console.log(resData);
 
       const missionResult = await missionsController.addMission(resData);
-      console.log(missionResult);
-
       res.status(200)
         .json(missionResult);
 

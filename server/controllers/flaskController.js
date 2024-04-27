@@ -23,6 +23,12 @@ exports.flaskController = {
       };
     }
 
-    return await axios.post(flaskApiUrl, payload);
+    try {
+      return await axios.post(flaskApiUrl, payload, {
+        timeout: 5000
+      });
+    } catch (error) {
+      throw new FlaskConnection(flaskApiUrl);
+    }
   },
 }

@@ -64,9 +64,9 @@ class FlaskConnection extends Error {
 
 class FlaskResponse extends Error {
   constructor(message) {
-    super(`${message}`);
+    super(`Flask Response: ${message}`);
     this.name = 'FlaskResponse';
-    this.status = 500;
+    this.status = 400;
   }
 }
 
