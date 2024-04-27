@@ -10,6 +10,7 @@ const {
   BadRequestError,
   NotFoundSchedule
 } = require('../errors/errors');
+const moment = require('moment');
 
 axios.interceptors.response.use(
   response => response,
@@ -23,7 +24,6 @@ axios.interceptors.response.use(
     }
   }
 );
-
 
 const processMissions = (missions) => {
   let processedMissions = [];
@@ -47,7 +47,7 @@ exports.algorithmHandler = {
       if (Object.keys(req.body).length === 0) throw new BadRequestError('add missions');
 
       const validation = await missionsController.validateMissions(req.body);
-      if (!validation) throw new BadRequestError('missing arguments in missions');
+      if (!validation) throw new BadRequestError('missing or invalid arguments for missions');
 
       let processedMissions = processMissions(req.body);
 
@@ -56,7 +56,8 @@ exports.algorithmHandler = {
       const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
 
       if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
-      const missions = await missionsController.getMissionsByClassId(classId, next);
+
+      const missions = await missionsController.getMissionsByClassIdAndDate(classId, next);
 
       let url = 'generate_schedule';
       let data = {
@@ -64,7 +65,27 @@ exports.algorithmHandler = {
         'soldiers': soldiers
       };
 
-      if (missions.length > 0) {
+      const minNewMissionDate = processedMissions.reduce((acc, curr) => {
+        if (acc.startDate < curr.startDate) {
+          return acc;
+        }
+        return curr;
+      }, processedMissions[0]).startDate;
+
+
+      const maxCurrMissionDate = missions.reduce((acc, curr) => {
+        if (!acc || acc < curr.startDate) {
+          return curr.startDate;
+        }
+        return acc;
+      }, null);
+
+      const minNewMissionMoment = moment(minNewMissionDate);
+      const maxCurrMissionMoment = moment(maxCurrMissionDate);
+
+      const isTwoDaysAfter = minNewMissionMoment.diff(maxCurrMissionMoment, 'days') === 2;
+
+      if (missions.length > 0 && !isTwoDaysAfter) {
         url = 'add_mission';
         data = {
           'schedule': missions,

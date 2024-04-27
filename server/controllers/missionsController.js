@@ -8,12 +8,14 @@ const {
   createMissions,
   updateMission,
   deleteMission,
-  findMissionsByClassId
+  findMissionsByClassId,
+  findMissionsByQuery,
 } = require('../repositories/missionsRepository');
 const {
   EntityNotFoundError,
   BadRequestError
 } = require('../errors/errors');
+const moment = require('moment');
 
 exports.missionsController = {
   async getMissions(req, res, next) {
@@ -30,6 +32,19 @@ exports.missionsController = {
   async getMissionsByClassId(classId, next) {
     try {
       return await findMissionsByClassId({ classId: classId });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getMissionsByClassIdAndDate(classId, next) {
+    try {
+      const oneWeekAgo = moment().subtract(1, 'weeks').format('DD/MM/YYYY HH:MM');
+      const query = {
+        classId: classId,
+        startDate: { $gte: oneWeekAgo }
+      };
+      return await findMissionsByQuery(query);
     } catch (error) {
       next(error);
     }
@@ -95,13 +110,27 @@ exports.missionsController = {
     if (Array.isArray(missions)) {
       let isValid = true;
       missions.forEach((mission) => {
-        if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount) {
+        if (!validateMission(mission)) {
           isValid = false;
         }
       });
       return isValid;
     } else {
-      return !(!missions.classId || !missions.missionType || !missions.startDate || !missions.endDate || !missions.soldierCount);
+      return validateMission(missions);
     }
   }
+};
+
+const validateMission = (mission) => {
+  if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount){
+    return false;
+  }
+
+  const twoHoursLater = moment().add(2, 'hours');
+  return !(moment(mission.startDate)
+      .isBefore(twoHoursLater) ||
+    moment(mission.endDate)
+      .isBefore(moment(mission.startDate)) ||
+    mission.soldierCount <= 0);
+
 };

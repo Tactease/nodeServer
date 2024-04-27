@@ -33,6 +33,10 @@ class MongoStorage extends EventEmitter {
     return this.Model.findOne(id);
   }
 
+  retrieveMany(query) {
+    return this.Model.find(query);
+  }
+
   retrieveByClass(id) {
     return this.Model.find(id);
   }

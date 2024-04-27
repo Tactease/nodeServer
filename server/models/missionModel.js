@@ -13,4 +13,8 @@ MissionSchema
   .path('endDate')
   .validate(((value) => this.startDate && value && value < this.startDate));
 
+MissionSchema
+  .path('soldierCount')
+  .validate(((value) => value > 0));
+
 module.exports = model('mission', MissionSchema);
