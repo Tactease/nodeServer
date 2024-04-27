@@ -24,9 +24,7 @@ exports.flaskController = {
     }
 
     try {
-      return await axios.post(flaskApiUrl, payload, {
-        timeout: 5000
-      });
+      return await axios.post(flaskApiUrl, payload);
     } catch (error) {
       throw new FlaskConnection(flaskApiUrl);
     }
