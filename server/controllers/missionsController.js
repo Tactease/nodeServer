@@ -39,7 +39,9 @@ exports.missionsController = {
 
   async getMissionsByClassIdAndDate(classId, next) {
     try {
-      const oneWeekAgo = moment().subtract(1, 'weeks').format('DD/MM/YYYY HH:MM');
+      const oneWeekAgo = moment()
+        .subtract(1, 'weeks')
+        .toISOString();
       const query = {
         classId: classId,
         startDate: { $gte: oneWeekAgo }
@@ -108,13 +110,9 @@ exports.missionsController = {
 
   async validateMissions(missions) {
     if (Array.isArray(missions)) {
-      let isValid = true;
-      missions.forEach((mission) => {
-        if (!validateMission(mission)) {
-          isValid = false;
-        }
+      return missions.every((mission) => {
+        return validateMission(mission);
       });
-      return isValid;
     } else {
       return validateMission(missions);
     }
@@ -122,15 +120,27 @@ exports.missionsController = {
 };
 
 const validateMission = (mission) => {
-  if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount){
-    return false;
+  let isValid = true;
+
+  if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount) {
+    isValid = false;
   }
 
-  const twoHoursLater = moment().add(2, 'hours');
-  return !(moment(mission.startDate)
-      .isBefore(twoHoursLater) ||
-    moment(mission.endDate)
-      .isBefore(moment(mission.startDate)) ||
-    mission.soldierCount <= 0);
+  const startDate = moment(mission.startDate, 'DD/MM/YYYY HH:mm'); // Update format to 'HH:mm'
+  const endDate = moment(mission.endDate, 'DD/MM/YYYY HH:mm'); // Update format to 'HH:mm'
+  const currDate = moment.utc().local();
 
+  if (startDate.isBefore(currDate)) {
+    isValid = false;
+  }
+
+  if (endDate.isBefore(startDate)) {
+    isValid = false;
+  }
+
+  if (mission.soldierCount <= 0) {
+    isValid = false;
+  }
+
+  return isValid;
 };

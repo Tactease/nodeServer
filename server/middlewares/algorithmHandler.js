@@ -57,7 +57,7 @@ exports.algorithmHandler = {
 
       if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
 
-      const missions = await missionsController.getMissionsByClassIdAndDate(classId, next);
+      const missions = await missionsController.getMissionsByClassId(classId, next);
 
       let url = 'generate_schedule';
       let data = {
@@ -74,16 +74,16 @@ exports.algorithmHandler = {
 
 
       const maxCurrMissionDate = missions.reduce((acc, curr) => {
-        if (!acc || acc < curr.startDate) {
+        if (!acc || moment(acc, 'DD/MM/YYYY HH:mm').isBefore(moment(curr.startDate, 'DD/MM/YYYY HH:mm'))) {
           return curr.startDate;
         }
         return acc;
       }, null);
+      
+      const minNewMissionMoment = moment(minNewMissionDate, 'DD/MM/YYYY HH:mm');
+      const maxCurrMissionMoment = moment(maxCurrMissionDate, 'DD/MM/YYYY HH:mm');
 
-      const minNewMissionMoment = moment(minNewMissionDate);
-      const maxCurrMissionMoment = moment(maxCurrMissionDate);
-
-      const isTwoDaysAfter = minNewMissionMoment.diff(maxCurrMissionMoment, 'days') === 2;
+      const isTwoDaysAfter = minNewMissionMoment.diff(maxCurrMissionMoment, 'days') > 2;
 
       if (missions.length > 0 && !isTwoDaysAfter) {
         url = 'add_mission';
