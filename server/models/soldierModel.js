@@ -7,11 +7,12 @@ const ClassModel = new Schema({
 
 const RequestModel = new Schema({
   requestType: { type: String, required: true },
-  daysOffType: { type: String, required: true },
+  // daysOffType: { type: String, required: true },
   startDate: { type: String, required: true },
   endDate: { type: String, required: true },
   note: { type: String },
-  fileName: { type: String },
+  // fileName: { type: String },
+  status: {type: String, default: "Pending"},
 });
 
 const SoldierModel = new Schema({
