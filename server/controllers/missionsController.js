@@ -29,6 +29,18 @@ exports.missionsController = {
     }
   },
 
+  async getClassMissions(req, res, next){
+    try {
+      const { classId } = req.params;
+      const mission = await findMissionsByClassId({ classId: classId });
+      if (!mission || mission.length === 0) throw new EntityNotFoundError(`Missions with class id <${classId}>`);
+      res.status(200)
+        .json(mission);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getMissionsByClassId(classId, next) {
     try {
       return await findMissionsByClassId({ classId: classId });

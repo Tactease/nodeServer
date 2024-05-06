@@ -3,8 +3,10 @@ const { soldiersController } = require('../controllers/soldierController');
 
 const soldierRouter = new Router();
 const { requestsRouter } = require('./requestRouter');
+const { missionsController } = require('../controllers/missionsController');
 
 soldierRouter.get('/', soldiersController.getAllSoldiers);
+soldierRouter.get('/list/:classId', soldiersController.getClassSoldiers);
 soldierRouter.get('/:soldierId', soldiersController.getSoldierById);
 soldierRouter.post('/', soldiersController.createSoldier);
 soldierRouter.put('/:soldierId', soldiersController.updateSoldier);

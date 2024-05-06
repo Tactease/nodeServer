@@ -42,7 +42,7 @@ const processMissions = (missions) => {
 };
 
 exports.algorithmHandler = {
-  async algMiddleware(req, res, next) {
+  async newMissionsMiddleware(req, res, next) {
     try {
       if (Object.keys(req.body).length === 0) throw new BadRequestError('add missions');
 
@@ -102,6 +102,15 @@ exports.algorithmHandler = {
       const missionResult = await missionsController.addMission(resData);
       res.status(200)
         .json(missionResult);
+
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async changeScheduleBySoldierRequest(req, res, next) {
+    try{
+
 
     } catch (error) {
       next(error);
