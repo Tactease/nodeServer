@@ -18,6 +18,7 @@ const {
   PropertyNotFoundError,
   BadRequestError
 } = require('../errors/errors');
+const { findMissionsByClassId } = require('../repositories/missionsRepository');
 
 exports.soldiersController = {
   async getAllSoldiers(req, res, next) {
@@ -26,6 +27,18 @@ exports.soldiersController = {
       if (!soldier || soldier.length === 0) throw new EntityNotFoundError('Soldier');
       res.status(200)
         .json(soldier);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getClassSoldiers(req, res, next){
+    try {
+      const { classId } = req.params;
+      const soldiers = await retrieveSoldierByClass(classId);
+      if (!soldiers || soldiers.length === 0) throw new EntityNotFoundError(`soldiers with class id <${classId}>`);
+      res.status(200)
+        .json(soldiers);
     } catch (error) {
       next(error);
     }

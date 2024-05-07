@@ -23,6 +23,10 @@ exports.flaskController = {
       };
     }
 
-    return await axios.post(flaskApiUrl, payload);
+    try {
+      return await axios.post(flaskApiUrl, payload);
+    } catch (error) {
+      throw new FlaskConnection(flaskApiUrl);
+    }
   },
 }

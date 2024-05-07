@@ -8,12 +8,14 @@ const {
   createMissions,
   updateMission,
   deleteMission,
-  findMissionsByClassId
+  findMissionsByClassId,
+  findMissionsByQuery,
 } = require('../repositories/missionsRepository');
 const {
   EntityNotFoundError,
   BadRequestError
 } = require('../errors/errors');
+const moment = require('moment');
 
 exports.missionsController = {
   async getMissions(req, res, next) {
@@ -27,9 +29,36 @@ exports.missionsController = {
     }
   },
 
+  async getClassMissions(req, res, next){
+    try {
+      const { classId } = req.params;
+      const mission = await findMissionsByClassId({ classId: classId });
+      if (!mission || mission.length === 0) throw new EntityNotFoundError(`Missions with class id <${classId}>`);
+      res.status(200)
+        .json(mission);
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getMissionsByClassId(classId, next) {
     try {
       return await findMissionsByClassId({ classId: classId });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getMissionsByClassIdAndDate(classId, next) {
+    try {
+      const oneWeekAgo = moment()
+        .subtract(1, 'weeks')
+        .toISOString();
+      const query = {
+        classId: classId,
+        startDate: { $gte: oneWeekAgo }
+      };
+      return await findMissionsByQuery(query);
     } catch (error) {
       next(error);
     }
@@ -93,15 +122,37 @@ exports.missionsController = {
 
   async validateMissions(missions) {
     if (Array.isArray(missions)) {
-      let isValid = true;
-      missions.forEach((mission) => {
-        if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount) {
-          isValid = false;
-        }
+      return missions.every((mission) => {
+        return validateMission(mission);
       });
-      return isValid;
     } else {
-      return !(!missions.classId || !missions.missionType || !missions.startDate || !missions.endDate || !missions.soldierCount);
+      return validateMission(missions);
     }
   }
+};
+
+const validateMission = (mission) => {
+  let isValid = true;
+
+  if (!mission.classId || !mission.missionType || !mission.startDate || !mission.endDate || !mission.soldierCount) {
+    isValid = false;
+  }
+
+  const startDate = moment(mission.startDate, 'DD/MM/YYYY HH:mm'); // Update format to 'HH:mm'
+  const endDate = moment(mission.endDate, 'DD/MM/YYYY HH:mm'); // Update format to 'HH:mm'
+  const currDate = moment.utc().local();
+
+  if (startDate.isBefore(currDate)) {
+    isValid = false;
+  }
+
+  if (endDate.isBefore(startDate)) {
+    isValid = false;
+  }
+
+  if (mission.soldierCount <= 0) {
+    isValid = false;
+  }
+
+  return isValid;
 };
