@@ -39,11 +39,10 @@ exports.requestsController = {
       if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`Soldier with id <${req.soldierId}>`);
       if (Object.keys(req.body).length === 0) throw new BadRequestError('create');
       const {
-        requestType, daysOffType, startDate, endDate,
+        requestType, startDate, endDate,
       } = req.body;
       if (
         !requestType
-                || !daysOffType
                 || !startDate
                 || !endDate
       ) throw new PropertyNotFoundError('create - missing arguments');
