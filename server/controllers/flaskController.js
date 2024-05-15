@@ -8,7 +8,7 @@ rendeURL = 'https://tacteasepythonserver.onrender.com/';
 
 exports.flaskController = {
   async flaskConnection(requestString, data) {
-    const flaskApiUrl = `https://tacteasepythonserver.onrender.com/${requestString}`;
+    const flaskApiUrl = `http://localhost:5000/${requestString}`;
     let payload = {};
 
     if (requestString === 'generae_schedule') {
@@ -26,11 +26,11 @@ exports.flaskController = {
       };
     }
 
-    if (requestString === 'change_soldier_upon_request_approved') {
+    if (requestString === 'update_schedule') {
       payload = {
-        request_approved: JSON.stringify(data.request_approved),
         missions: JSON.stringify(data.missions),
-        soldiers: JSON.stringify(data.soldiers)
+        soldiers: JSON.stringify(data.soldiers),
+        request_approved: JSON.stringify(data.request_approved)
       };
     }
 

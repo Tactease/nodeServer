@@ -127,7 +127,6 @@ exports.algorithmHandler = {
       if (!requestId || isNaN(requestId)) throw new BadRequestError('id');
 
       const request = req.body.request;
-      console.log(request)
 
       if (request.status === 'Approved') {
         const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
@@ -155,10 +154,10 @@ exports.algorithmHandler = {
           return;
         }
 
-        const url = 'change_soldier_upon_request_approved';
+        const url = 'update_schedule';
         const requestApprove = {
           'personalNumber': soldier.personalNumber,
-          'index': requestId
+          'index': parseInt(requestId)
         };
 
         const data = {
@@ -167,16 +166,18 @@ exports.algorithmHandler = {
           'soldiers': soldiers
         };
 
+        
         const result = await flaskController.flaskConnection(url, data);
         const resData = JSON.parse(result.data);
-        console.log(resData);
-        if (!resData || resData === 0) throw new BadRequestError('schedule');
+        console.log(result.data);
+        if (!resData || resData === 0 || resData.length === 0)  throw new NotFoundSchedule('schedule');
         if (resData.hasOwnProperty('error')){
           let rejected = request;
           rejected.status = 'Rejected';
           const updatedRequest = await requestsController.updateRequest(req.soldierId, rejected);
           throw new BadRequestError(`${resData.error}`);
         }
+
         const missionResult = await missionsController.updateMissionsAfterRequest(resData);
         const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
         const updatedData = {
