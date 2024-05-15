@@ -8,7 +8,7 @@ rendeURL = 'https://tacteasepythonserver.onrender.com/';
 
 exports.flaskController = {
   async flaskConnection(requestString, data) {
-    const flaskApiUrl = `${localURL}${requestString}`;
+    const flaskApiUrl = `https://tacteasepythonserver.onrender.com/${requestString}`;
     let payload = {};
 
     if (requestString === 'generae_schedule') {
