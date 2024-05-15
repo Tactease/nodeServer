@@ -75,20 +75,7 @@ exports.requestsController = {
     }
   },
 
-  async updateRequest(req, res, next) {
-    try {
-      const soldier = await retrieveSoldier(req.soldierId);
-      if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`Soldier with id <${req.soldierId}>`);
-      const { requestId } = req.params;
-      if (!requestId || isNaN(requestId)) throw new BadRequestError('id');
-      if (Object.keys(req.body).length === 0) throw new BadRequestError('update');
-      const request = soldier.requestList[requestId];
-      if (!request || request.length === 0) throw new EntityNotFoundError(`Request with id <${requestId}>`);
-      Object.assign(request, req.body);
-      const updatedSoldier = await updateRequest(req.soldierId, requestId, request);
-      res.status(200).json(updatedSoldier);
-    } catch (error) {
-      next(error);
-    }
+  async updateRequest(soldierId, requestId, request) {
+      return updatedSoldier = await updateRequest(soldierId, requestId, request);
   },
 };

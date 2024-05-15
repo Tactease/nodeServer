@@ -1,6 +1,11 @@
 const axios = require('axios');
 const { missionsController } = require('../controllers/missionsController');
 const { soldiersController } = require('../controllers/soldierController');
+const { requestsController } = require('../controllers/requestController');
+const {
+  retrieveSoldier,
+} = require('../repositories/soldierRepository');
+
 const {
   flaskController
 } = require('../controllers/flaskController');
@@ -11,6 +16,7 @@ const {
   NotFoundSchedule
 } = require('../errors/errors');
 const moment = require('moment');
+const { reject } = require('bcrypt/promises');
 
 axios.interceptors.response.use(
   response => response,
@@ -79,7 +85,7 @@ exports.algorithmHandler = {
         }
         return acc;
       }, null);
-      
+
       const minNewMissionMoment = moment(minNewMissionDate, 'DD/MM/YYYY HH:mm');
       const maxCurrMissionMoment = moment(maxCurrMissionDate, 'DD/MM/YYYY HH:mm');
 
@@ -109,9 +115,79 @@ exports.algorithmHandler = {
   },
 
   async changeScheduleBySoldierRequest(req, res, next) {
-    try{
+    try {
+      if (Object.keys(req.body).length === 0) throw new BadRequestError('update request');
 
+      const soldier = await retrieveSoldier(req.soldierId);
+      if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`Soldier with id <${req.soldierId}>`);
 
+      const classId = soldier.depClass.classId;
+
+      const { requestId } = req.params;
+      if (!requestId || isNaN(requestId)) throw new BadRequestError('id');
+
+      const request = req.body.request;
+      console.log(request)
+
+      if (request.status === 'Approved') {
+        const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
+        if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
+
+        const missions = await missionsController.getMissionsByClassId(classId, next);
+
+        const reqStartDate = moment(request.startDate, "DD/MM/YYYY HH:mm");
+        const reqEndDate = moment(request.endDate, "DD/MM/YYYY HH:mm");
+
+        const rangeStart = reqStartDate.clone().subtract(3, 'days');
+        const rangeEnd = reqEndDate.clone().add(5, 'days');
+
+        let missionsInRange = missions.filter(mission => {
+          const missionStart = moment(mission.startDate, "DD/MM/YYYY HH:mm");
+          const missionEnd = moment(mission.endDate, "DD/MM/YYYY HH:mm");
+
+          return (missionStart.isSameOrAfter(rangeStart) && missionStart.isSameOrBefore(rangeEnd)) ||
+            (missionEnd.isSameOrAfter(rangeStart) && missionEnd.isSameOrBefore(rangeEnd));
+        });
+
+        if (missionsInRange.length === 0) {
+          const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
+          res.status(200).json(updatedRequest);
+          return;
+        }
+
+        const url = 'change_soldier_upon_request_approved';
+        const requestApprove = {
+          'personalNumber': soldier.personalNumber,
+          'index': requestId
+        };
+
+        const data = {
+          'request_approved': requestApprove,
+          'missions': missionsInRange,
+          'soldiers': soldiers
+        };
+
+        const result = await flaskController.flaskConnection(url, data);
+        const resData = JSON.parse(result.data);
+        console.log(resData);
+        if (!resData || resData === 0) throw new BadRequestError('schedule');
+        if (resData.hasOwnProperty('error')){
+          let rejected = request;
+          rejected.status = 'Rejected';
+          const updatedRequest = await requestsController.updateRequest(req.soldierId, rejected);
+          throw new BadRequestError(`${resData.error}`);
+        }
+        const missionResult = await missionsController.updateMissionsAfterRequest(resData);
+        const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
+        const updatedData = {
+          missionResult,
+          updatedRequest
+        }
+        res.status(200).json(updatedData);
+      } else{
+        const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
+        res.status(200).json(updatedRequest);
+      }
     } catch (error) {
       next(error);
     }

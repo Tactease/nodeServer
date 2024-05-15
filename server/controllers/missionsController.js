@@ -120,6 +120,21 @@ exports.missionsController = {
     }
   },
 
+  async updateMissionsAfterRequest(missions) {
+      let i = 0;
+      if (missions.length > 0) {
+        let updatedMissions = [];
+        for (i = 0; i < missions.length; i++) {
+          const mission = missions[i];
+          const updateRes = await updateMission(mission._id, mission);
+          updatedMissions.push(updateRes);
+        }
+        return updatedMissions;
+      }else{
+        return await updateMission(missions._id, missions);
+      }
+  },
+
   async validateMissions(missions) {
     if (Array.isArray(missions)) {
       return missions.every((mission) => {
