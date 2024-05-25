@@ -135,10 +135,11 @@ exports.algorithmHandler = {
       if (!requestId || isNaN(requestId)) throw new BadRequestError('id');
 
       const request = req.body.request;
+      console.log(request);
+      
+      if (request.status !== 'Approved' && request.status !== 'Rejected') throw new BadRequestError('status');
 
-      if (request['status'] !== 'Approved' && request['status'] !== 'Rejected') throw new BadRequestError('status');
-
-      if (request['status'] === 'Approved') {
+      if (request.status === 'Approved') {
         const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
         if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
 
