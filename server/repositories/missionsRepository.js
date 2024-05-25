@@ -15,8 +15,17 @@ const createMissions = (mission) => mongoStorage.createMany(mission);
 
 const updateMission = (id, mission) => mongoStorage.update({ _id: id }, mission);
 
+const updateMissions = async (missions) => {
+  const missionIds = missions.map(mission => mission._id);
+  const updatePromises = missions.map(mission =>
+    mongoStorage.updateMany({ _id: mission._id }, mission)
+  );
+  return await Promise.all(updatePromises);
+};
+
+
 const deleteMission = (id) => mongoStorage.delete({ _id: id });
 
 module.exports = {
-  findMissions,findMissionsByClassId, retrieveMission, createMission, createMissions, updateMission, deleteMission, findMissionsByQuery
+  findMissions, findMissionsByClassId, retrieveMission, createMission, createMissions, updateMission, deleteMission, findMissionsByQuery, updateMissions
 };

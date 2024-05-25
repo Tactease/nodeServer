@@ -47,6 +47,14 @@ const processMissions = (missions) => {
   return processedMissions;
 };
 
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 exports.algorithmHandler = {
   async newMissionsMiddleware(req, res, next) {
     try {
@@ -60,15 +68,15 @@ exports.algorithmHandler = {
       const classId = processedMissions[0].classId;
 
       const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
-
       if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
+      const shuffledSoldiers = shuffle(soldiers);
 
       const missions = await missionsController.getMissionsByClassId(classId, next);
 
       let url = 'generate_schedule';
       let data = {
         'missions': processedMissions,
-        'soldiers': soldiers
+        'soldiers': shuffledSoldiers
       };
 
       const minNewMissionDate = processedMissions.reduce((acc, curr) => {
@@ -96,12 +104,13 @@ exports.algorithmHandler = {
         data = {
           'schedule': missions,
           'new_mission': processedMissions,
-          'soldiers': soldiers
+          'soldiers': shuffledSoldiers
         };
       }
 
       const result = await flaskController.flaskConnection(url, data);
       const resData = JSON.parse(result.data);
+      console.log(result.data);
       if (!resData || resData === 0) throw new BadRequestError('schedule');
       if (resData.hasOwnProperty('error')) throw new NotFoundSchedule(`${resData.error}`);
 
@@ -120,73 +129,62 @@ exports.algorithmHandler = {
 
       const soldier = await retrieveSoldier(req.soldierId);
       if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`Soldier with id <${req.soldierId}>`);
-
+      console.log("132");
       const classId = soldier.depClass.classId;
+      console.log("134");
 
       const { requestId } = req.params;
       if (!requestId || isNaN(requestId)) throw new BadRequestError('id');
+      console.log("138");
 
       const request = req.body.request;
+
+      if (request.status !== 'Approved' && request.status !== 'Rejected') throw new BadRequestError('status');
 
       if (request.status === 'Approved') {
         const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
         if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
+        console.log("145");
+
+        const shuffledSoldiers = shuffle(soldiers);
 
         const missions = await missionsController.getMissionsByClassId(classId, next);
-
-        const reqStartDate = moment(request.startDate, "DD/MM/YYYY HH:mm");
-        const reqEndDate = moment(request.endDate, "DD/MM/YYYY HH:mm");
-
-        const rangeStart = reqStartDate.clone().subtract(3, 'days');
-        const rangeEnd = reqEndDate.clone().add(5, 'days');
-
-        let missionsInRange = missions.filter(mission => {
-          const missionStart = moment(mission.startDate, "DD/MM/YYYY HH:mm");
-          const missionEnd = moment(mission.endDate, "DD/MM/YYYY HH:mm");
-
-          return (missionStart.isSameOrAfter(rangeStart) && missionStart.isSameOrBefore(rangeEnd)) ||
-            (missionEnd.isSameOrAfter(rangeStart) && missionEnd.isSameOrBefore(rangeEnd));
-        });
-
-        if (missionsInRange.length === 0) {
-          const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
-          res.status(200).json(updatedRequest);
-          return;
-        }
-
         const url = 'update_schedule';
         const requestApprove = {
           'personalNumber': soldier.personalNumber,
           'index': parseInt(requestId)
         };
+        console.log("155");
 
         const data = {
           'request_approved': requestApprove,
-          'missions': missionsInRange,
-          'soldiers': soldiers
+          'missions': missions,
+          'soldiers': shuffledSoldiers
         };
 
-        
         const result = await flaskController.flaskConnection(url, data);
         const resData = JSON.parse(result.data);
-        console.log(result.data);
-        if (!resData || resData === 0 || resData.length === 0)  throw new NotFoundSchedule('schedule');
-        if (resData.hasOwnProperty('error')){
+
+        if (!resData || resData === 0 || resData.length === 0) throw new NotFoundSchedule(`${resData.message}`);
+
+        if (resData.hasOwnProperty('error') || resData['message'] === 'No suitable replacement found.') {
           let rejected = request;
           rejected.status = 'Rejected';
-          const updatedRequest = await requestsController.updateRequest(req.soldierId, rejected);
+          const rejectReq = await requestsController.updateRequest(req.soldierId, parseInt(requestId), rejected);
           throw new BadRequestError(`${resData.error}`);
         }
 
         const missionResult = await missionsController.updateMissionsAfterRequest(resData);
-        const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
+
+        const updatedRequest = await requestsController.updateRequest(req.soldierId, parseInt(requestId), request);
+
         const updatedData = {
           missionResult,
           updatedRequest
         }
         res.status(200).json(updatedData);
-      } else{
-        const updatedRequest = await requestsController.updateRequest(req.soldierId, request);
+      } else {
+        const updatedRequest = await requestsController.updateRequest(req.soldierId, parseInt(requestId), request);
         res.status(200).json(updatedRequest);
       }
     } catch (error) {

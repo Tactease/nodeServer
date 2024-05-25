@@ -43,8 +43,8 @@ exports.requestsController = {
       } = req.body;
       if (
         !requestType
-                || !startDate
-                || !endDate
+        || !startDate
+        || !endDate
       ) throw new PropertyNotFoundError('create - missing arguments');
       const request = req.body;
       const updatedSoldier = await createRequest(req.soldierId, request);
@@ -76,6 +76,7 @@ exports.requestsController = {
   },
 
   async updateRequest(soldierId, requestId, request) {
-      return updatedSoldier = await updateRequest(soldierId, requestId, request);
+    return await updateRequest(soldierId, requestId, request);
+
   },
 };

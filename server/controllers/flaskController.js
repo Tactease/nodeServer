@@ -8,10 +8,10 @@ rendeURL = 'https://tacteasepythonserver.onrender.com/';
 
 exports.flaskController = {
   async flaskConnection(requestString, data) {
-    const flaskApiUrl = `https://tacteasepythonserver.onrender.com/${requestString}`;
+    const flaskApiUrl = `http://localhost:5000/${requestString}`;
     let payload = {};
 
-    if (requestString === 'generae_schedule') {
+    if (requestString === 'generate_schedule') {
       payload = {
         missions: JSON.stringify(data.missions),
         soldiers: JSON.stringify(data.soldiers)
@@ -37,7 +37,7 @@ exports.flaskController = {
     try {
       return await axios.post(flaskApiUrl, payload);
     } catch (error) {
-      throw new FlaskConnection(flaskApiUrl);
+      throw new FlaskConnection(error.message || error);
     }
   },
 }

@@ -57,6 +57,12 @@ class MongoStorage extends EventEmitter {
     return this.Model.findOneAndUpdate(id, data, { new: true });
   }
 
+  async updateMany(filter, data) {
+    await this.Model.updateMany(filter, { $set: data });
+    const updatedDocuments = await this.Model.find(filter);
+    return updatedDocuments;
+}
+
   createRequest(id, data) {
     return this.Model.findOneAndUpdate(
       { _id: id },

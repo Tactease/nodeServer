@@ -8,9 +8,9 @@ const findSoldierRequests = (soldierId) => mongoStorage.findRequests(soldierId);
 
 const retrieveRequest = (id) => mongoStorage.retrieve({ _id: id });
 
-const createRequest = (id, request) => mongoStorage.updateRequest(id, request);
+const createRequest = (id, request) => mongoStorage.createRequest(id, request);
 
-const updateRequest = (id, request) => mongoStorage.update({ _id: id }, request);
+const updateRequest = (id, request) => mongoStorage.updateRequest({ _id: id }, request);
 
 const deleteRequest = (request) => mongoStorage.delete(request);
 

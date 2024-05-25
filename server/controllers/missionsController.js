@@ -7,6 +7,7 @@ const {
   createMission,
   createMissions,
   updateMission,
+  updateMissions,
   deleteMission,
   findMissionsByClassId,
   findMissionsByQuery,
@@ -29,7 +30,7 @@ exports.missionsController = {
     }
   },
 
-  async getClassMissions(req, res, next){
+  async getClassMissions(req, res, next) {
     try {
       const { classId } = req.params;
       const mission = await findMissionsByClassId({ classId: classId });
@@ -121,19 +122,16 @@ exports.missionsController = {
   },
 
   async updateMissionsAfterRequest(missions) {
-      let i = 0;
-      if (missions.length > 0) {
-        let updatedMissions = [];
-        for (i = 0; i < missions.length; i++) {
-          const mission = missions[i];
-          const updateRes = await updateMission(mission._id, mission);
-          updatedMissions.push(updateRes);
-        }
-        return updatedMissions;
-      }else{
-        return await updateMission(missions._id, missions);
-      }
+    console.log(missions);
+    if (missions.length > 0) {
+      const updatedMissions = await updateMissions(missions);
+      return updatedMissions;
+    } else {
+      const updateRes = await updateMission(missions._id, missions);
+      return updateRes;
+    }
   },
+  
 
   async validateMissions(missions) {
     if (Array.isArray(missions)) {
