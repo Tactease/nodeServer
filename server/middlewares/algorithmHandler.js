@@ -129,22 +129,18 @@ exports.algorithmHandler = {
 
       const soldier = await retrieveSoldier(req.soldierId);
       if (!soldier || soldier.length === 0) throw new EntityNotFoundError(`Soldier with id <${req.soldierId}>`);
-      console.log("132");
       const classId = soldier.depClass.classId;
-      console.log("134");
 
       const { requestId } = req.params;
       if (!requestId || isNaN(requestId)) throw new BadRequestError('id');
-      console.log("138");
 
       const request = req.body.request;
 
-      if (request.status !== 'Approved' && request.status !== 'Rejected') throw new BadRequestError('status');
+      if (request['status'] !== 'Approved' && request['status'] !== 'Rejected') throw new BadRequestError('status');
 
-      if (request.status === 'Approved') {
+      if (request['status'] === 'Approved') {
         const soldiers = await soldiersController.getSoldiersByClassId(classId, next);
         if (!soldiers) throw new EntityNotFoundError(`couldn't find solider for classId ${classId} `);
-        console.log("145");
 
         const shuffledSoldiers = shuffle(soldiers);
 
@@ -154,7 +150,6 @@ exports.algorithmHandler = {
           'personalNumber': soldier.personalNumber,
           'index': parseInt(requestId)
         };
-        console.log("155");
 
         const data = {
           'request_approved': requestApprove,
